@@ -1,12 +1,11 @@
 // Nombre de la caché. Es buena práctica cambiar la versión (v1, v2, etc.) cada vez que actualices archivos.
-const CACHE_NAME = 'iceking-comprobante-v1';
+const CACHE_NAME = 'iceking-comprobante-v3'; // <--- CAMBIADO A V3 para forzar la actualización
 
 // Lista de archivos para almacenar en caché
 const urlsToCache = [
   '/',
-  '/index.html',
+  './index.html', // <--- CORREGIDO: Ahora apunta a index.html
   '/manifest.json',
-  // Debes subir tu archivo de icono con este nombre:
   '/app_icon_512x512.png', 
   // Scripts de terceros esenciales (si el entorno lo permite)
   'https://cdn.tailwindcss.com',
