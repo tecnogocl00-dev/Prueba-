@@ -240,24 +240,23 @@
 
         /**
          * Descarga la imagen del comprobante usando html2canvas.
+         * Se mejoró la robustez para evitar errores de renderizado/descarga.
          */
         async function downloadReceiptImage() {
             const receiptContainer = document.getElementById('receiptContainer');
             const downloadButton = document.getElementById('downloadButton');
             
-            // Deshabilitar y cambiar texto del botón durante el proceso
+            // Guardar el texto original y deshabilitar el botón
+            const originalText = downloadButton.innerHTML;
             downloadButton.disabled = true;
-            downloadButton.innerHTML = 'Generando Imagen...';
+            downloadButton.innerHTML = 'Generando Imagen... por favor espere.';
 
             try {
-                // Generar el canvas a partir del HTML
+                // Generar el canvas a partir del HTML. Usamos una alta escala para asegurar la nitidez.
                 const canvas = await html2canvas(receiptContainer, { 
-                    scale: 3, // Mayor escala para mejor calidad (3x la resolución original)
+                    scale: 3, 
                     useCORS: true, 
-                    // Usamos el fondo de la tarjeta (blanco) para un recorte limpio, no el fondo del body
-                    backgroundColor: '#FFFFFF',
-                    // Permitir el borde de la tarjeta en la imagen
-                    ignoreElements: (element) => element.classList.contains('receipt-card') && element.parentElement.tagName === 'BODY'
+                    backgroundColor: '#FFFFFF', // Asegura un fondo blanco limpio en la imagen
                 });
 
                 // Convertir el canvas a una URL de imagen (PNG)
@@ -272,19 +271,27 @@
                 const dateStr = document.getElementById('dateInput').value;
                 link.download = `Comprobante_ICEKING_${kilos}Kg_${dateStr}.png`;
                 
-                // Simular un clic para iniciar la descarga
+                // Iniciar la descarga
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
             } catch (error) {
                 console.error("Error al generar la imagen:", error);
-                // Aquí deberías usar un modal o mensaje, pero por simplicidad solo restauramos el botón
-                alert("Ocurrió un error al intentar generar la imagen. Por favor, asegúrese de que el comprobante esté visible e intente de nuevo."); 
+                // Si hay un error, informamos al usuario restaurando el botón con un mensaje de fallo.
+                downloadButton.innerHTML = '❌ Error al Descargar. Intente de Nuevo';
+                // Usamos un pequeño timeout para que el usuario vea el mensaje de error antes de restaurar
+                setTimeout(() => {
+                    downloadButton.innerHTML = originalText;
+                    downloadButton.disabled = false;
+                }, 3000);
+                return; // Salir de la función después del error
             } finally {
-                // Restaurar el botón
-                downloadButton.disabled = false;
-                downloadButton.innerHTML = '⬇️ Descargar Imagen del Comprobante';
+                // Restaurar el botón si no hubo un error
+                if (downloadButton.innerHTML.indexOf('Error') === -1) {
+                    downloadButton.innerHTML = originalText;
+                    downloadButton.disabled = false;
+                }
             }
         }
     </script>
