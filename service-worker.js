@@ -4,7 +4,7 @@ const CACHE_NAME = 'iceking-comprobante-v1';
 // Lista de archivos para almacenar en caché
 const urlsToCache = [
   '/',
-  '/comprobante_hielo.html',
+  '/index.html',
   '/manifest.json',
   // Debes subir tu archivo de icono con este nombre:
   '/app_icon_512x512.png', 
