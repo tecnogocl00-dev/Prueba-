@@ -3,298 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comprobante ICE KING</title>
-    <!-- Carga de Tailwind CSS para estilos -->
+    <title>ICE KING App</title>
+    <!-- Configuración para PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <!-- Carga de Tailwind CSS para estilos modernos y responsivos -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-blue': '#1D4ED8',
-                        'secondary-gray': '#F3F4F6',
-                        'ice-blue': '#BFDBFE',
-                        'brand-color': '#06B6D4', /* Nuevo color para ICE KING */
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <!-- Librería para convertir HTML a imagen (captura de pantalla) -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Configuración para usar la fuente Inter y un esquema de color temático (hielo/azul) -->
     <style>
-        /* Estilos personalizados para la tipografía y el espaciado en móviles */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
-            background-color: #E5E7EB; /* Fondo suave */
             font-family: 'Inter', sans-serif;
-            padding: 1rem;
+            background-color: #f0f9ff; /* Fondo muy claro */
         }
-        /* Estilo para simular el comprobante impreso o digital */
-        .receipt-card {
-            border: 3px solid #06B6D4; /* Borde más llamativo con el color de la marca */
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
-            background-color: white;
-            padding: 2rem;
-            margin-top: 1.5rem;
-            transform: scale(1); /* Asegura que la captura se vea bien */
+        /* Estilos específicos del comprobante */
+        #comprobante-card-design {
+            /* Simula el borde azul redondeado de la imagen */
+            border: 4px solid #93c5fd; /* blue-300 */
+            border-radius: 1.5rem; /* rounded-3xl */
+            padding: 24px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            /* Importante: asegura un fondo sólido para la captura */
+            background-color: white; 
         }
-        /* Estilo para la animación del botón de descarga */
-        .download-button:hover {
-            animation: pulse-shadow 1s infinite;
+        /* Estilos para la sección de TOTAL A PAGAR */
+        #total-a-pagar-box {
+            background-color: #e0f2fe; /* blue-100 */
+            background-image: linear-gradient(to right, #e0f2fe, #f0f9ff); /* Degradado sutil */
+            border-top: 1px dashed #93c5fd; /* blue-300 */
+            border-bottom: 1px dashed #93c5fd;
         }
-        @keyframes pulse-shadow {
-            0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
+        /* Estilos para impresión/captura */
+        @media print {
+            body { background-color: white; }
+            #contenedor-principal { box-shadow: none !important; border: none !important; }
+            #formulario-generador { display: none !important; }
+            #acciones-botones { display: none !important; }
+            #comprobante-card-design { margin: 0; padding: 0; box-shadow: none !important; border-radius: 0 !important; border: none !important; }
+        }
+        /* Clase de degradado de botón */
+        .btn-gradient {
+            background-image: linear-gradient(to right, #0ea5e9, #3b82f6); /* Azul claro a azul principal */
+            transition: transform 0.1s ease;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        /* Custom font size for ICE KING title */
+        .ice-king-title {
+            font-size: 2.5rem; /* Aumentado */
+        }
+        /* Adaptación para dispositivos muy pequeños (opcional si se necesita más compresión) */
+        @media (max-width: 400px) {
+            .ice-king-title {
+                font-size: 2.0rem; /* Aumentado */
+            }
+            #comprobante-card-design {
+                padding: 16px;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- Carga de la librería html2canvas para convertir HTML a imagen -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Contenedor principal para el formulario de entrada (máx. 384px de ancho) -->
+    <div id="contenedor-principal" class="w-full max-w-md">
 
-    <!-- Contenedor Principal y Panel de Entrada -->
-    <div class="w-full max-w-sm mx-auto p-4 bg-white rounded-xl shadow-lg border border-gray-200">
-        <h1 class="text-xl font-bold text-center text-brand-color mb-4">🧊 ICE KING - Generador de Boletas</h1>
+        <!-- Área de Ingreso de Datos (Formulario) -->
+        <div id="formulario-generador" class="bg-white rounded-xl shadow-xl p-6 mb-4">
+            <h1 class="text-2xl font-extrabold text-gray-800 mb-6 text-center">
+                Generador de Comprobantes
+            </h1>
+            <p class="text-center text-sm text-gray-500 mb-6">
+                El precio por kilo de hielo es de $400 CLP.
+            </p>
 
-        <!-- Campo de Kilos -->
-        <div class="mb-4">
-            <label for="kilosInput" class="block text-sm font-medium text-gray-700 mb-1">
-                1. Kilos de Hielo a Vender
-            </label>
-            <input type="number" id="kilosInput" placeholder="Solo números enteros" min="1" step="1" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-color focus:border-brand-color transition duration-150"
-                   value="1">
-            <p id="error-message" class="text-red-500 text-xs mt-1 hidden">Por favor, ingrese una cantidad válida (solo números enteros).</p>
-        </div>
-
-        <!-- Campo de Fecha (Nuevo) -->
-        <div class="mb-6">
-            <label for="dateInput" class="block text-sm font-medium text-gray-700 mb-1">
-                2. Fecha del Comprobante
-            </label>
-            <input type="date" id="dateInput" 
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-brand-color focus:border-brand-color transition duration-150">
-        </div>
-        
-        <!-- Botón de Generación -->
-        <button onclick="generateReceipt()"
-                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-lg transform hover:scale-[1.02] active:scale-[0.98]">
-            3. Generar Comprobante
-        </button>
-    </div>
-
-    <!-- Área del Comprobante (Diseñada para ser capturada/screenshot) -->
-    <!-- Nota: Se usa un fondo blanco dentro de la tarjeta para que la imagen generada se vea limpia. -->
-    <div id="receiptContainer" class="hidden w-full max-w-sm mx-auto receipt-card mt-6">
-        <!-- El contenido será insertado aquí por JavaScript -->
-    </div>
-    
-    <!-- Botón de Descarga -->
-    <div id="downloadArea" class="hidden w-full max-w-sm mx-auto mt-4">
-        <button id="downloadButton" onclick="downloadReceiptImage()"
-                class="download-button w-full bg-brand-color hover:bg-cyan-600 text-white font-bold py-3 rounded-xl transition duration-300 shadow-xl border-b-4 border-cyan-700">
-            ⬇️ Descargar Imagen del Comprobante
-        </button>
-    </div>
-
-    <script type="text/javascript">
-        // Constantes del negocio (Precio y Datos de Transferencia)
-        const PRICE_PER_KILO = 400; // Valor del kilo de hielo en CLP
-        const ACCOUNT_DETAILS = {
-            name: "Geraldine Abarza Hernández",
-            rut: "18.763.476-8",
-            type: "Cuenta RUT"
-        };
-        const CURRENCY_FORMAT = new Intl.NumberFormat('es-CL', {
-            style: 'currency',
-            currency: 'CLP',
-            minimumFractionDigits: 0
-        });
-
-        // Inicializa la fecha al día de hoy al cargar
-        window.onload = function() {
-            const dateInput = document.getElementById('dateInput');
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.value = today;
-            generateReceipt(); // Generar un comprobante inicial
-        }
-
-        /**
-         * Función principal para calcular el total y generar el HTML del comprobante.
-         */
-        function generateReceipt() {
-            const inputElement = document.getElementById('kilosInput');
-            const dateInput = document.getElementById('dateInput');
-            const errorMessage = document.getElementById('error-message');
-            const receiptContainer = document.getElementById('receiptContainer');
-            const downloadArea = document.getElementById('downloadArea');
-            
-            // Limpiar errores previos
-            errorMessage.classList.add('hidden');
-            inputElement.classList.remove('border-red-500');
-
-            const kilos = parseInt(inputElement.value, 10);
-            const selectedDate = dateInput.value;
-
-            // Validación de entrada
-            if (isNaN(kilos) || kilos <= 0) {
-                errorMessage.textContent = "Por favor, ingrese una cantidad válida de kilos (solo números enteros positivos).";
-                errorMessage.classList.remove('hidden');
-                inputElement.classList.add('border-red-500');
-                receiptContainer.classList.add('hidden');
-                downloadArea.classList.add('hidden');
-                return;
-            }
-
-            // 1. Cálculo del total
-            const totalAmount = kilos * PRICE_PER_KILO;
-
-            // 2. Formateo de la fecha (sin hora ni folio)
-            let dateStr = 'Fecha no definida';
-            let fileNameDate = 'sin_fecha';
-            if (selectedDate) {
-                const parts = selectedDate.split('-'); // [YYYY, MM, DD]
-                const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
-                dateStr = dateObj.toLocaleDateString('es-CL', { 
-                    year: 'numeric', month: 'long', day: 'numeric' 
-                });
-                fileNameDate = selectedDate; // Usar YYYY-MM-DD para el nombre del archivo
-            }
-
-            // 3. Generación del contenido HTML del comprobante
-            receiptContainer.innerHTML = `
-                <!-- Encabezado del Comprobante -->
-                <div class="text-center pb-4 border-b border-dashed border-gray-300">
-                    <p class="text-xs font-semibold text-gray-500">COMPROBANTE DE VENTA</p>
-                    <h2 class="text-4xl font-extrabold text-brand-color">🧊 ICE KING</h2>
-                    <p class="text-sm font-semibold text-gray-600 mt-2">
-                        Fecha: <span class="text-gray-900">${dateStr}</span>
+            <div class="space-y-4">
+                <!-- Campo de Kilos -->
+                <div>
+                    <label for="kilos" class="block text-sm font-medium text-gray-700 mb-2">
+                        Kilos de Hielo Vendidos
+                    </label>
+                    <div class="mt-1 flex rounded-lg shadow-sm">
+                        <input type="number" id="kilos" name="kilos" min="1" value="1"
+                               class="flex-1 block w-full rounded-l-lg border-gray-300 p-3 text-xl focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Ej: 5" required>
+                        <span class="inline-flex items-center px-4 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-lg font-semibold">
+                            KG
+                        </span>
+                    </div>
+                    <p id="error-mensaje" class="mt-2 text-sm text-red-600 hidden">
+                        Por favor, ingresa una cantidad válida de kilos (mínimo 1).
                     </p>
                 </div>
 
-                <!-- Detalles de la Transacción -->
-                <div class="py-4 border-b border-dashed border-gray-300">
-                    <p class="flex justify-between font-semibold text-lg mb-2">
-                        <span>Descripción</span>
-                        <span>Total</span>
+                <!-- Botón de Generar -->
+                <button onclick="generarComprobante()"
+                        class="btn-gradient w-full text-white font-bold py-3 px-4 rounded-lg text-lg shadow-lg">
+                    Generar Comprobante
+                </button>
+            </div>
+        </div>
+
+        <!-- Área del Comprobante Generado -->
+        <div id="comprobante-generado" class="hidden w-full overflow-x-auto p-2">
+            
+            <!-- CLAVE: w-[400px] para asegurar que el diseño sea siempre el mismo, independientemente del móvil -->
+            <div id="comprobante-card-design" class="w-[400px] mx-auto">
+
+                <!-- HEADER / BRANDING -->
+                <div class="text-center pb-4 mb-4 border-b border-gray-200">
+                    <p class="text-base font-light text-gray-500 tracking-widest uppercase mb-1">
+                        COMPROBANTE DE VENTA
                     </p>
-                    <div class="flex justify-between text-gray-700 border-t pt-2 border-gray-100">
-                        <span class="text-base font-medium text-gray-600">${kilos} Kilos de Hielo</span>
-                        <span class="text-xl font-bold">${CURRENCY_FORMAT.format(totalAmount)}</span>
+                    <div class="flex justify-center items-center">
+                        <!-- Logo simple de cubo de hielo (Inline SVG) -->
+                        <svg class="w-10 h-10 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#3b82f6" d="M12 2L6 5v6l6 3 6-3V5z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2L6 5v6l6 3 6-3V5zm0 0l6 3m-6-3l-6 3m6 12l-6-3m6 3l6-3m-6 3v-6" class="text-blue-500"></path>
+                            <path fill="#dbeafe" opacity="0.8" d="M12 2L6 5v6l6 3 6-3V5z"></path>
+                            <path fill="#93c5fd" opacity="0.6" d="M18 5L12 8l-6-3V5l6-3 6 3z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v6m0-6l-6-3m6 3l6-3" class="text-blue-500"></path>
+                        </svg>
+                        <span class="ice-king-title font-extrabold text-blue-600 tracking-tight">
+                            ICE KING
+                        </span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1 text-right">
-                        Precio Unitario: ${CURRENCY_FORMAT.format(PRICE_PER_KILO)} por kilo.
+                    <p class="text-sm text-gray-600 mt-2">
+                        Fecha: <span id="fecha-actual" class="font-bold"></span>
                     </p>
+                </div>
+
+                <!-- DETALLE DE VENTA - Encabezados -->
+                <div class="flex justify-between font-extrabold text-gray-700 uppercase text-base mb-2 px-1">
+                    <span>Descripción</span>
+                    <span>Total</span>
                 </div>
                 
-                <!-- Total a Pagar -->
-                <div class="pt-4 flex justify-between items-center bg-ice-blue rounded-lg p-4">
-                    <span class="text-xl font-bold text-gray-800">TOTAL A PAGAR</span>
-                    <span class="text-4xl font-extrabold text-green-700">${CURRENCY_FORMAT.format(totalAmount)}</span>
+                <!-- DETALLE DE VENTA - Línea de Producto -->
+                <div class="flex justify-between items-start pb-2 border-b border-gray-200 mb-6 px-1">
+                    <div class="flex flex-col text-gray-800">
+                        <span id="cantidad-kilos" class="font-bold text-base">1 Kilo de Hielo</span>
+                        <span class="text-sm text-gray-500 mt-1">Precio Unitario: $400 por kilo.</span>
+                    </div>
+                    <span id="total-linea" class="font-extrabold text-gray-800 text-base">$400</span>
                 </div>
 
-                <!-- Recordatorio de Datos de Transferencia y de Envío del Comprobante (Dirigido al Cliente) -->
-                <div class="mt-6 p-4 bg-secondary-gray rounded-xl border border-gray-300">
-                    <h3 class="text-lg font-bold text-primary-blue mb-3 border-b pb-2 flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                        Datos para Transferencia
-                    </h3>
-                    <div class="space-y-1 text-sm text-gray-700">
-                        <p>
-                            <span class="font-semibold">Nombre:</span> ${ACCOUNT_DETAILS.name}
-                        </p>
-                        <p>
-                            <span class="font-semibold">RUT:</span> ${ACCOUNT_DETAILS.rut}
-                        </p>
-                        <p>
-                            <span class="font-semibold">Tipo de Cuenta:</span> ${ACCOUNT_DETAILS.type}
-                        </p>
-                    </div>
+                <!-- TOTAL A PAGAR BOX (Fondo Celeste) -->
+                <div id="total-a-pagar-box" class="p-4 rounded-lg flex justify-between items-center mb-6">
+                    <span class="text-2xl font-extrabold text-gray-700 uppercase tracking-wider">
+                        TOTAL A PAGAR
+                    </span>
+                    <span id="total-pagar" class="text-4xl font-extrabold text-blue-700">
+                        $400
+                    </span>
+                </div>
 
-                    <!-- Recordatorio de ENVÍO AL CLIENTE -->
-                    <div class="mt-4 p-2 bg-yellow-100 rounded-lg border border-yellow-300 text-center">
-                        <p class="text-sm font-extrabold text-yellow-800">
+                <!-- Bloque Cuadrado: Dos Columnas (reduce altura) -->
+                <div class="grid grid-cols-2 gap-4"> 
+                    <!-- COLUMNA 1: DATOS DE TRANSFERENCIA -->
+                    <div class="p-4 bg-white rounded-lg border border-blue-100 shadow-sm">
+                        <p class="text-base font-extrabold text-blue-600 mb-2 flex items-center">
+                            <!-- Icono de tarjeta / cuenta bancaria -->
+                            <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m0 0h3m-3 0h-3m12-4h-3m3 0h3"></path></svg>
+                            Transferencia
+                        </p>
+                        <ul class="text-sm text-gray-800 space-y-1">
+                            <li><span class="font-bold">Nombre:</span> Geraldine Abarza Hernández</li>
+                            <li><span class="font-bold">RUT:</span> 18.763.476-8</li>
+                            <li><span class="font-bold">Tipo:</span> Cuenta RUT</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- COLUMNA 2: NOTA IMPORTANTE (Recuadro Amarillo) -->
+                    <div class="p-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg text-center flex flex-col justify-center">
+                        <p class="text-base font-extrabold text-red-600 mb-1">
                             ¡IMPORTANTE!
                         </p>
-                        <p class="text-sm font-semibold text-gray-800">
-                            Tras realizar la transferencia, por favor, envíe su comprobante de pago a través de WhatsApp.
+                        <p class="text-sm text-gray-800 font-medium">
+                            Envíe su comprobante de pago a través de WhatsApp.
                         </p>
                     </div>
-
                 </div>
+                <!-- Fin Bloque -->
                 
-                <!-- Pie de página -->
-                <p class="text-center text-xs text-gray-500 mt-4 pt-4 border-t border-gray-200">
-                    ¡Gracias por preferir ICE KING! ❄️
+                <p class="text-sm text-center text-gray-400 mt-6 flex items-center justify-center">
+                    ¡Gracias por preferir ICE KING!
+                    <span class="ml-1 text-lg">🧊</span>
                 </p>
-            `;
+            </div>
 
-            // Mostrar el contenedor del recibo y el botón de descarga
-            receiptContainer.classList.remove('hidden');
-            downloadArea.classList.remove('hidden');
+            <!-- Botones de Acción (Fuera del diseño del comprobante para captura) -->
+            <div id="acciones-botones" class="mt-6 flex space-x-4 max-w-[400px] mx-auto">
+                <button id="btn-reiniciar" onclick="reiniciar()"
+                        class="flex-1 bg-gray-200 text-gray-800 font-semibold py-2 rounded-lg hover:bg-gray-300 transition duration-150 shadow-md">
+                    Nuevo Comprobante
+                </button>
+                <button id="btn-captura" onclick="descargarComprobante()"
+                        class="flex-1 btn-gradient text-white font-semibold py-2 rounded-lg shadow-lg">
+                    Descargar Comprobante (PNG)
+                </button>
+            </div>
+            
+            <p id="instrucciones-descarga" class="mt-4 p-3 bg-green-100 text-green-800 rounded-lg text-sm hidden text-center font-medium max-w-[400px] mx-auto">
+                ¡Descarga exitosa! El archivo PNG está listo para enviar por WhatsApp.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Registra el Service Worker para permitir la instalación y el uso sin conexión.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado con éxito:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Fallo el registro del Service Worker:', error);
+                    });
+            });
+        }
+    
+        // Constante del precio por kilo
+        const PRECIO_POR_KILO = 400;
+        
+        /**
+         * Formatea un número como moneda chilena (CLP).
+         * @param {number} numero - El valor a formatear.
+         * @returns {string} El valor formateado.
+         */
+        function formatearCLP(numero) {
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                minimumFractionDigits: 0
+            }).format(numero);
         }
 
         /**
-         * Descarga la imagen del comprobante usando html2canvas.
-         * Se mejoró la robustez para evitar errores de renderizado/descarga.
+         * Función principal para generar el comprobante.
          */
-        async function downloadReceiptImage() {
-            const receiptContainer = document.getElementById('receiptContainer');
-            const downloadButton = document.getElementById('downloadButton');
+        function generarComprobante() {
+            const inputKilos = document.getElementById('kilos');
+            const kilos = parseInt(inputKilos.value, 10);
+            const errorMsg = document.getElementById('error-mensaje');
+            const instruccionDescarga = document.getElementById('instrucciones-descarga');
+
+            // 1. Validación de la entrada
+            if (isNaN(kilos) || kilos <= 0) {
+                errorMsg.classList.remove('hidden');
+                inputKilos.focus();
+                return;
+            }
+            errorMsg.classList.add('hidden');
+            instruccionDescarga.classList.add('hidden'); // Ocultar mensaje de descarga previa
+
+            // 2. Cálculo del total
+            const total = kilos * PRECIO_POR_KILO;
+
+            // 3. Actualización del Comprobante
+            document.getElementById('cantidad-kilos').textContent = `${kilos} Kilo${kilos > 1 ? 's' : ''} de Hielo`;
+            document.getElementById('total-linea').textContent = formatearCLP(total); // El total en la línea de detalle
+            document.getElementById('total-pagar').textContent = formatearCLP(total); // El total grande y destacado
             
-            // Guardar el texto original y deshabilitar el botón
-            const originalText = downloadButton.innerHTML;
-            downloadButton.disabled = true;
-            downloadButton.innerHTML = 'Generando Imagen... por favor espere.';
+            // Actualización de la fecha al formato deseado (ej: 9 de noviembre de 2025)
+            const formatter = new Intl.DateTimeFormat('es-ES', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('fecha-actual').textContent = formatter.format(new Date());
+            
+            // 4. Cambio de vista
+            document.getElementById('formulario-generador').classList.add('hidden');
+            document.getElementById('comprobante-generado').classList.remove('hidden');
+        }
+
+        /**
+         * Descarga el comprobante como imagen PNG, optimizada para WhatsApp.
+         */
+        async function descargarComprobante() {
+            const card = document.getElementById('comprobante-card-design');
+            const acciones = document.getElementById('acciones-botones');
+            const instruccionDescarga = document.getElementById('instrucciones-descarga');
+
+            // Ocultamos las acciones y el mensaje de éxito antes de la captura
+            acciones.classList.add('hidden');
+            instruccionDescarga.classList.add('hidden');
 
             try {
-                // Generar el canvas a partir del HTML. Usamos una alta escala para asegurar la nitidez.
-                const canvas = await html2canvas(receiptContainer, { 
-                    scale: 3, 
-                    useCORS: true, 
-                    backgroundColor: '#FFFFFF', // Asegura un fondo blanco limpio en la imagen
+                // Usar html2canvas para capturar el elemento
+                const canvas = await html2canvas(card, {
+                    scale: 3, // Mantenemos la escala alta para alta resolución
+                    useCORS: true,
+                    backgroundColor: null
                 });
 
-                // Convertir el canvas a una URL de imagen (PNG)
+                // Crear el enlace de descarga
                 const image = canvas.toDataURL('image/png');
-                
-                // Crear un elemento 'a' temporal para forzar la descarga
                 const link = document.createElement('a');
+                
+                // Generar un nombre de archivo dinámico
+                const kilos = document.getElementById('kilos').value;
+                const totalText = document.getElementById('total-pagar').textContent.replace(/[$. ]/g, '').replace('CLP', ''); 
+                const date = new Date().toISOString().slice(0, 10);
+                link.download = `Comprobante_ICEKING_${kilos}kg_Total${totalText}_${date}.png`;
+                
                 link.href = image;
                 
-                // Definir el nombre del archivo de descarga
-                const kilos = document.getElementById('kilosInput').value || '0';
-                const dateStr = document.getElementById('dateInput').value;
-                link.download = `Comprobante_ICEKING_${kilos}Kg_${dateStr}.png`;
-                
-                // Iniciar la descarga
-                document.body.appendChild(link);
+                // Disparar la descarga
                 link.click();
-                document.body.removeChild(link);
+                
+                // Mostrar mensaje de descarga exitosa
+                instruccionDescarga.classList.remove('hidden');
 
             } catch (error) {
-                console.error("Error al generar la imagen:", error);
-                // Si hay un error, informamos al usuario restaurando el botón con un mensaje de fallo.
-                downloadButton.innerHTML = '❌ Error al Descargar. Intente de Nuevo';
-                // Usamos un pequeño timeout para que el usuario vea el mensaje de error antes de restaurar
-                setTimeout(() => {
-                    downloadButton.innerHTML = originalText;
-                    downloadButton.disabled = false;
-                }, 3000);
-                return; // Salir de la función después del error
+                console.error("Error al generar el comprobante:", error);
+                // Si falla, se puede mostrar un mensaje de error aquí.
             } finally {
-                // Restaurar el botón si no hubo un error
-                if (downloadButton.innerHTML.indexOf('Error') === -1) {
-                    downloadButton.innerHTML = originalText;
-                    downloadButton.disabled = false;
-                }
+                // Mostrar los botones de acción nuevamente después de la descarga
+                acciones.classList.remove('hidden');
             }
         }
+        
+        /**
+         * Reinicia la aplicación a la vista de formulario.
+         */
+        function reiniciar() {
+            document.getElementById('kilos').value = 1; // Deja 1 kilo por defecto
+            document.getElementById('instrucciones-descarga').classList.add('hidden');
+            
+            // Muestra los botones
+            document.getElementById('acciones-botones').classList.remove('hidden');
+
+            // Cambio de vista
+            document.getElementById('comprobante-generado').classList.add('hidden');
+            document.getElementById('formulario-generador').classList.remove('hidden');
+            document.getElementById('kilos').focus();
+        }
+
+        // Inicializar con foco en el campo de input al cargar
+        window.onload = () => {
+             document.getElementById('kilos').focus();
+        };
+        
+        // Cargar el comprobante con 1kg al inicio (y ocultarlo)
+        generarComprobante();
+        document.getElementById('formulario-generador').classList.remove('hidden');
+        document.getElementById('comprobante-generado').classList.add('hidden');
+        
     </script>
 </body>
 </html>
-
