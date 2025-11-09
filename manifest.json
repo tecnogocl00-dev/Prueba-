@@ -2,7 +2,7 @@
   "name": "ICE KING Comprobantes",
   "short_name": "ICE KING",
   "description": "Generador de comprobantes de venta de hielo para ICE KING.",
-  "start_url": "./comprobante_hielo.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
